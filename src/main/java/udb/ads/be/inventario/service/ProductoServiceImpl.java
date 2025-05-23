@@ -2,6 +2,7 @@ package udb.ads.be.inventario.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import udb.ads.be.inventario.entity.Categoria;
 import udb.ads.be.inventario.entity.Producto;
 import udb.ads.be.inventario.repository.ProductoRepository;
 
@@ -12,6 +13,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductoServiceImpl implements ProductoService{
     private final ProductoRepository repo;
+    private final ProductoRepository productoRepository;
+    private final CategoriaService categoriaService;
 
     @Override
     public List<Producto> listarTodos() {
@@ -19,8 +22,13 @@ public class ProductoServiceImpl implements ProductoService{
     }
 
     @Override
-    public Producto guardar(Producto p) {
-        return repo.save(p);
+    public Producto guardar(Producto producto) {
+        if (producto.getCategoria() != null && producto.getCategoria().getIdCategoria() != null) {
+            Categoria categoria = categoriaService.porId(producto.getCategoria().getIdCategoria())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+            producto.setCategoria(categoria);
+        }
+        return productoRepository.save(producto);
     }
 
     @Override
