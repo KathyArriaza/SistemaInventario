@@ -10,4 +10,5 @@ public interface ProductoService {
     Producto guardar(Producto p);
     Optional<Producto> porId(Integer id);
     List<Producto> porCategoria(String nombreCategoria);
+    void eliminar(Integer id);
 }
