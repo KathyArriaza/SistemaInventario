@@ -37,6 +37,10 @@ public class ProductoServiceImpl implements ProductoService{
     }
 
     @Override
+    public void eliminar(Integer id) {
+        repo.deleteById(id);
+    }
+    @Override
     public List<Producto> porCategoria(String nombreCategoria) {
         return repo.findByCategoriaNombre(nombreCategoria);
     }
