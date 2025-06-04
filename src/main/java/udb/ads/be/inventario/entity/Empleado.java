@@ -31,7 +31,7 @@ public class Empleado {
     @Column(nullable = false)
     private String contraseña;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "idRol", nullable = false)
     private Role role;
 }
