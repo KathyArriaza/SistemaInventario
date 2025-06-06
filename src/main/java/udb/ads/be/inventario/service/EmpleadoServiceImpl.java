@@ -1,6 +1,7 @@
 package udb.ads.be.inventario.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import udb.ads.be.inventario.entity.Empleado;
 import udb.ads.be.inventario.entity.Role;
@@ -15,6 +16,7 @@ import java.util.Optional;
 public class EmpleadoServiceImpl implements EmpleadoService {
     private final EmpleadoRepository repo;
     private final RoleRepository roleRepo;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<Empleado> listarTodos() {
@@ -32,6 +34,11 @@ public class EmpleadoServiceImpl implements EmpleadoService {
             Role roleCompleto = roleRepo.findById(empleado.getRole().getIdRol())
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
             empleado.setRole(roleCompleto);
+        }
+
+        // Encriptar la contraseña solo si es nueva o está en texto plano
+        if (empleado.getContraseña() != null && !empleado.getContraseña().startsWith("$2a$")) {
+            empleado.setContraseña(passwordEncoder.encode(empleado.getContraseña()));
         }
         return repo.save(empleado);
     }
