@@ -2,7 +2,7 @@ package udb.ads.be.inventario.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import udb.ads.be.inventario.entity.Empleado;
@@ -13,8 +13,7 @@ import udb.ads.be.inventario.repository.EmpleadoRepository;
 public class AuthServiceImpl implements AuthService {
     private final EmpleadoRepository empleadoRepository;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Empleado login(String email, String contraseña) {

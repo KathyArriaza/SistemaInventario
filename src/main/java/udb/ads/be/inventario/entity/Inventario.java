@@ -41,6 +41,8 @@ public class Inventario {
     @CreationTimestamp
     private LocalDateTime creada;
 
+    private LocalDateTime ultimoMovimiento;
+
     @UpdateTimestamp
     private LocalDateTime ultimaActualizacion;
 }

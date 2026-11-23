@@ -1,0 +1,29 @@
+[
+  {
+    "sku": "CAB-01",
+    "nombre": "Cable de red",
+    "categoria": "Redes",
+    "sucursal": "Central",
+    "precio": 5.5,
+    "cantidad": 12,
+    "diasDesdeMovimiento": 0
+  },
+  {
+    "sku": "AP-02",
+    "nombre": "Punto de acceso",
+    "categoria": "Redes",
+    "sucursal": "Central",
+    "precio": 80.0,
+    "cantidad": 2,
+    "diasDesdeMovimiento": 100
+  },
+  {
+    "sku": "TEC-03",
+    "nombre": "Teclado",
+    "categoria": "Oficina",
+    "sucursal": "Central",
+    "precio": 15.0,
+    "cantidad": 4,
+    "diasDesdeMovimiento": 10
+  }
+]

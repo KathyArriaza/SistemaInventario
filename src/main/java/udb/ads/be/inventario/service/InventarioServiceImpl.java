@@ -1,13 +1,14 @@
 package udb.ads.be.inventario.service;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import udb.ads.be.inventario.entity.Inventario;
-import udb.ads.be.inventario.entity.Producto;
-import udb.ads.be.inventario.entity.Sucursal;
-import udb.ads.be.inventario.service.ProductoService;
-import udb.ads.be.inventario.service.SucursalService;
 import udb.ads.be.inventario.repository.InventarioRepository;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class InventarioServiceImpl implements InventarioService {
+    private final Clock clock;
     private final ProductoService productoService;
     private final SucursalService sucursalService;
 
@@ -32,43 +34,46 @@ public class InventarioServiceImpl implements InventarioService {
     }
 
     @Override
+    @Transactional
     public Inventario guardar(Inventario inventario) {
-        if (inventario.getProducto() != null && inventario.getProducto().getIdProducto() != null) {
-            Producto producto = productoService.porId(inventario.getProducto().getIdProducto())
-                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-            inventario.setProducto(producto);
-        }
-        if (inventario.getSucursal() != null && inventario.getSucursal().getIdSucursal() != null) {
-            Sucursal sucursal = sucursalService.porId(inventario.getSucursal().getIdSucursal())
-                    .orElseThrow(() -> new RuntimeException("Sucursal no encontrada"));
-            inventario.setSucursal(sucursal);
-        }
-        return inventarioRepository.save(inventario);
+        return aplicar(new Inventario(), inventario);
     }
 
     @Override
+    @Transactional
     public Optional<Inventario> actualizar(Integer id, Inventario inventario) {
-        return inventarioRepository.findById(id).map(existing -> {
-            existing.setCantidad(inventario.getCantidad());
-
-            if (inventario.getProducto() != null && inventario.getProducto().getIdProducto() != null) {
-                Producto producto = productoService.porId(inventario.getProducto().getIdProducto())
-                        .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-                existing.setProducto(producto);
-            }
-            if (inventario.getSucursal() != null && inventario.getSucursal().getIdSucursal() != null) {
-                Sucursal sucursal = sucursalService.porId(inventario.getSucursal().getIdSucursal())
-                        .orElseThrow(() -> new RuntimeException("Sucursal no encontrada"));
-                existing.setSucursal(sucursal);
-            }
-            return inventarioRepository.save(existing);
-        });
-
-
+        return inventarioRepository.lockById(id).map(existing -> aplicar(existing, inventario));
     }
-    @Override
-        public void eliminar(Integer id) {
-            inventarioRepository.deleteById(id);
-        }
 
+    private Inventario aplicar(Inventario destino, Inventario datos) {
+        if (datos.getCantidad() == null || datos.getCantidad() < 0)
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Cantidad inválida");
+        boolean cambio = !datos.getCantidad().equals(destino.getCantidad());
+        if (datos.getProducto() != null && datos.getProducto().getIdProducto() != null) {
+            var producto = productoService.porId(datos.getProducto().getIdProducto())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "Producto no encontrado"));
+            cambio |= destino.getProducto() == null || !producto.getIdProducto().equals(destino.getProducto().getIdProducto());
+            destino.setProducto(producto);
+        }
+        if (datos.getSucursal() != null && datos.getSucursal().getIdSucursal() != null) {
+            var sucursal = sucursalService.porId(datos.getSucursal().getIdSucursal())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "Sucursal no encontrada"));
+            cambio |= destino.getSucursal() == null || !sucursal.getIdSucursal().equals(destino.getSucursal().getIdSucursal());
+            destino.setSucursal(sucursal);
+        }
+        if (destino.getProducto() == null || destino.getSucursal() == null)
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Se requiere producto y sucursal");
+        if (cambio) destino.setUltimoMovimiento(LocalDateTime.now(clock));
+        destino.setCantidad(datos.getCantidad());
+        return inventarioRepository.save(destino);
+    }
+
+    @Override
+    public void eliminar(Integer id) {
+        inventarioRepository.deleteById(id);
+    }
 }

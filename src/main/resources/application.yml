@@ -1,0 +1,33 @@
+server:
+  port: ${PORT:8090}
+spring:
+  profiles:
+    default: mysql
+inventory:
+  seed: classpath:data/inventario.json
+  critical: 2
+  low: 5
+  inactive-days: 90
+  templates: classpath*:agents/*.json
+  profile-keys:
+    auditor: ${AUDITOR_KEY:}
+    operativo: ${OPERATOR_KEY:}
+  llm-url: ${LLM_URL:https://api.openai.com/v1/chat/completions}
+  llm-key: ${LLM_API_KEY:}
+  model: ${LLM_MODEL:gpt-4o-mini}
+  temperature: 0
+---
+spring:
+  config.activate.on-profile: mysql
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/db_sistemaInventario}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa.hibernate.ddl-auto: update
+---
+spring:
+  config.activate.on-profile: demo
+  datasource:
+    url: jdbc:h2:mem:inventario;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+  jpa.hibernate.ddl-auto: create-drop

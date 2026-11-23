@@ -1,0 +1,42 @@
+{
+  "name": "inventory_movement",
+  "description": "Registra una entrada o salida por SKU y sucursal. Usa el UUID de operación suministrado.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "operacion": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "sku": {
+        "type": "string",
+        "minLength": 1
+      },
+      "sucursal": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2147483647
+      },
+      "tipo": {
+        "type": "string",
+        "enum": [
+          "ENTRADA",
+          "SALIDA"
+        ]
+      },
+      "cantidad": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2147483647
+      }
+    },
+    "required": [
+      "operacion",
+      "sku",
+      "sucursal",
+      "tipo",
+      "cantidad"
+    ],
+    "additionalProperties": false
+  }
+}

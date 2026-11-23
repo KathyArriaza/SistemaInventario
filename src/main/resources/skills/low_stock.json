@@ -1,0 +1,10 @@
+{
+  "name": "low_stock",
+  "description": "Clasifica existencias por sucursal y detecta inactividad de inventario.",
+  "parameters": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  }
+}
