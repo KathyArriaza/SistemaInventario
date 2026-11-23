@@ -1,6 +1,22 @@
-# Sistema de Gestión de Inventario · Skills y agentes
+# Sistema de Gestión de Inventario con agentes de IA
 
-Backend Java 17 y Spring Boot 3.4.5. Un auditor consulta existencias y un operativo registra movimientos sobre las mismas posiciones que expone el CRUD. Cada posición identifica un producto por su código (SKU) y una sucursal por su ID.
+## Origen del proyecto
+
+Creé este sistema hace un año para una tarea de mi universidad. En esa primera versión podía administrar productos, categorías, sucursales y existencias mediante una API en Spring Boot. Ahora lo estoy refactorizando para el curso de Inteligencia Artificial (IA). Mi objetivo es que un agente pueda consultar el inventario o proponer un movimiento y que el sistema siga siendo responsable de validar los permisos, calcular los saldos y guardar los cambios.
+
+## Enlace al repositorio
+
+**Repositorio del proyecto:** _Pega aquí la URL del repositorio._
+
+## ¿Qué refactoricé?
+
+- **Inventario.** Unifiqué la lógica que resolvía el producto y la sucursal al crear o actualizar existencias. El CRUD y los agentes consultan las mismas tablas. Si el operativo registra una salida, el nuevo saldo también aparece en el CRUD.
+- **Skills.** Separé la consulta de existencias, la detección de stock bajo o sin rotación y el registro de movimientos en tres componentes de Java. Cada uno declara qué datos recibe y puede probarse sin conectarse al modelo de IA.
+- **Agentes.** Definí dos perfiles en archivos JSON. El auditor consulta y analiza existencias. El operativo también puede registrar entradas y salidas. Una propuesta de movimiento hecha por el chat requiere confirmación antes de afectar el saldo.
+- **Integración con IA.** Encapsulé la comunicación HTTP con el modelo en `HttpPlanner`. El agente elige entre las herramientas autorizadas y Java ejecuta las reglas de inventario. Por ejemplo, Java rechaza una salida si la cantidad solicitada supera las existencias.
+- **Configuración y pruebas.** Organicé los umbrales, el modelo y las rutas de recursos en `application.yml`, con credenciales suministradas por variables de entorno. Añadí un perfil de demostración con H2 y datos JSON para probar el proyecto en VS Code.
+
+**Tecnologías:** Java 17, Spring Boot 3.4.5, Spring Data JPA, MySQL y H2 para la demostración.
 
 ## Demostración en VS Code
 
